@@ -1,0 +1,14 @@
+{
+    "sha256": "46048322e687fdf72033dfb33a246d6c33cb4c0845cff7d6752479a624686492",
+    "files": {
+        "usr": "",
+        "usr/share": "",
+        "usr/share/fcitx5": "",
+        "usr/share/fcitx5/addon": "",
+        "usr/share/fcitx5/addon/mozc.conf": "3837ef0ccb70bfe7703343ceb62673ffaaeb6922e3e77aa869a50aaba41c1439",
+        "usr/share/fcitx5/inputmethod": "",
+        "usr/share/fcitx5/inputmethod/mozc.conf": "0f4b7b735844c2485ff23412442a5a75d954b2d33f02007ce571feccfa6eb720",
+        "usr/share/mozc": "",
+        "usr/share/mozc/mozc.data": "fbb9a23419d677a33968145cfe1979dac6e7d3c28712d469854b4707a5965ed1"
+    }
+}
