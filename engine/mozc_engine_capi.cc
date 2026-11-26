@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 dreamingdog0529
 // C API wrapper around mozc::SessionHandler, for use by the fcitx5 addon.
 // Mirrors the JNI wrapper (android/jni/mozcjni.cc) without the JNI parts:
 // the boundary is a serialized mozc::commands::Command protobuf.

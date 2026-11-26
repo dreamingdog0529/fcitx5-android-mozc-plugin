@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 dreamingdog0529
 // C API of libmozc_engine.so (built from mozc with bazel).
 #pragma once
 

@@ -1,0 +1,11 @@
+{
+    "uniqueId": "google/mozc",
+    "artifactVersion": "3f235b4eb6fcff7d14ef5f0fb8ee56de7ee4c732",
+    "description": "Mozc - a Japanese input method editor designed for multi-platform",
+    "name": "google/mozc",
+    "website": "https://github.com/google/mozc",
+    "tag": "native",
+    "licenses": [
+        "BSD-3-Clause"
+    ]
+}

@@ -1,4 +1,8 @@
 /*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2026 dreamingdog0529
+ */
+/*
  * fcitx5 input method engine backed by an in-process Mozc session.
  * Talks to libmozc_engine.so over its JSON C API: each key event becomes
  * a mozc commands::Command in JSON, the reply drives preedit/candidates.

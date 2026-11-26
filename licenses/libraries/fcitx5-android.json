@@ -1,0 +1,11 @@
+{
+    "uniqueId": "fcitx/fcitx5-android",
+    "artifactVersion": "eb5b502",
+    "description": "Fcitx5 input method framework for Android",
+    "name": "fcitx/fcitx5-android",
+    "website": "https://github.com/fcitx5-android/fcitx5-android",
+    "tag": "native",
+    "licenses": [
+        "LGPL-2.1-or-later"
+    ]
+}
