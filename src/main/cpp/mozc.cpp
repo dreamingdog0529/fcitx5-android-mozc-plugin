@@ -160,6 +160,7 @@ public:
 
     bool processKey(InputContext *ic, KeyEvent &event);
     void selectCandidate(InputContext *ic, int candidateId);
+    void commitComposition(InputContext *ic);
     void clearSession(InputContext *ic);
     void resetPanel(InputContext *ic);
 
@@ -217,6 +218,7 @@ public:
     void deactivate(const InputMethodEntry & /*entry*/,
                     InputContextEvent &event) override {
         auto *state = event.inputContext()->propertyFor(&factory_);
+        state->commitComposition(event.inputContext());
         state->clearSession(event.inputContext());
     }
 
@@ -330,6 +332,14 @@ bool MozcState::ensureSession() {
         return false;
     }
     hasSession_ = true;
+    // Ask mozc for the android-style request: zero-query suggestions
+    // (candidates that follow the committed text, e.g. yoroshiku ->
+    // onegaishimasu) and mixed conversion candidates.
+    json req;
+    req["input"]["type"] = "SET_REQUEST";
+    req["input"]["request"]["zero_query_suggestion"] = true;
+    req["input"]["request"]["mixed_conversion"] = true;
+    eval(req);
     // Mobile sessions start with the IME off on some builds; turn it on.
     json on;
     on["input"]["type"] = "SEND_COMMAND";
@@ -432,12 +442,22 @@ void MozcState::applyOutput(InputContext *ic, const json &output) {
         }
     }
 
-    // Candidates.
+    // Candidates. With an android request, conversions may come back as
+    // all_candidate_words instead of candidate_window; accept both.
+    const json *cwPtr = nullptr;
+    std::string candKey;
     if (output.contains("candidate_window")) {
-        const auto &cw = output["candidate_window"];
+        cwPtr = &output["candidate_window"];
+        candKey = "candidate";
+    } else if (output.contains("all_candidate_words")) {
+        cwPtr = &output["all_candidate_words"];
+        candKey = "candidates";
+    }
+    if (cwPtr != nullptr) {
+        const auto &cw = *cwPtr;
         const json *candidates = nullptr;
-        if (cw.contains("candidate")) {
-            candidates = &cw["candidate"];
+        if (cw.contains(candKey)) {
+            candidates = &cw[candKey];
         } else if (cw.contains("Candidate")) {
             candidates = &cw["Candidate"];
         }
@@ -489,6 +509,20 @@ bool MozcState::processKey(InputContext *ic, KeyEvent &event) {
     }
     applyOutput(ic, output);
     return true;
+}
+
+void MozcState::commitComposition(InputContext *ic) {
+    if (!hasSession_) {
+        return;
+    }
+    json cmd;
+    cmd["input"]["type"] = "SEND_COMMAND";
+    cmd["input"]["id"] = sessionId_;
+    cmd["input"]["command"]["type"] = "COMMIT";
+    json reply = eval(cmd);
+    if (reply.contains("output")) {
+        applyOutput(ic, reply["output"]);
+    }
 }
 
 void MozcState::selectCandidate(InputContext *ic, int candidateId) {
