@@ -32,7 +32,7 @@ export ANDROID_HOME="$HOME/android-dev/sdk"
 export ECM_DIR="$HOME/android-dev/ecm/share/ECM/cmake"
 export LD_LIBRARY_PATH="$HOME/android-dev/gettext/root/usr/lib/x86_64-linux-gnu"
 export BUILD_ABI="arm64-v8a"
-export PATH="$JAVA_HOME/bin:$HOME/android-dev/gettext/root/usr/bin:/usr/local/bin:/usr/bin:/bin"
+export PATH="$JAVA_HOME/bin:$HOME/android-dev/gettext/root/usr/bin:$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin"
 
 if gh -R "$GH_REPO" release view "$TAG" >/dev/null 2>&1; then
     echo "error: release $TAG already exists" >&2
