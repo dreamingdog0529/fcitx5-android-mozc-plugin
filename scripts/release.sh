@@ -41,14 +41,16 @@ fi
 
 echo "== build (tree: $FCITX_TREE) =="
 cd "$FCITX_TREE"
-./gradlew :app:assembleRelease :plugin:mozc:assembleDebug :plugin:mozc:assembleRelease --console=plain
+./gradlew :app:assembleDebug :app:assembleRelease :plugin:mozc:assembleDebug :plugin:mozc:assembleRelease --console=plain
 
 mkdir -p "$OUT"
 PLUGIN_DBG=$(ls plugin/mozc/build/outputs/apk/debug/*mozc*debug.apk | head -1)
 PLUGIN_REL=$(ls plugin/mozc/build/outputs/apk/release/*release-unsigned.apk | head -1)
 BASE_REL=$(ls app/build/outputs/apk/release/*release-unsigned.apk | head -1)
+BASE_DBG=$(ls app/build/outputs/apk/debug/*debug.apk | head -1)
 
 cp "$PLUGIN_DBG" "$OUT/fcitx5-plugin-mozc-$TAG-debug.apk"
+cp "$BASE_DBG" "$OUT/fcitx5-base-$TAG-debug.apk"
 
 sign_apk() {
     # $1: unsigned apk, $2: output apk
@@ -81,7 +83,7 @@ if [ -z "$NOTES_FILE" ]; then
         echo
         echo "## インストールについて"
         echo "- プラグインは本体アプリと同じ署名でないと読み込まれません。"
-        echo "- debug版プラグインは、デバッグ署名でビルドした本体とセットで使ってください。"
+        echo "- debug版プラグインは、debug版の本体（fcitx5-base-$TAG-debug.apk）とセットで使ってください。"
         echo "- release版プラグインは、同じキーストアで署名した本体（fcitx5-base-$TAG-release.apk）とセットで使ってください。"
         echo "- 署名の異なる本体・プラグインへ切り替えるときは、先にアンインストールが必要です（設定とユーザー辞書は消えます）。"
     } > "$NOTES_FILE"
@@ -91,6 +93,7 @@ echo "== create release $TAG =="
 cd "$REPO_DIR"
 gh -R "$GH_REPO" release create "$TAG" \
     "$OUT/fcitx5-plugin-mozc-$TAG-debug.apk" \
+    "$OUT/fcitx5-base-$TAG-debug.apk" \
     "$OUT/fcitx5-plugin-mozc-$TAG-release.apk" \
     "$OUT/fcitx5-base-$TAG-release.apk" \
     --target "$(git rev-parse HEAD)" \
