@@ -218,7 +218,14 @@ public:
     void deactivate(const InputMethodEntry & /*entry*/,
                     InputContextEvent &event) override {
         auto *state = event.inputContext()->propertyFor(&factory_);
-        state->commitComposition(event.inputContext());
+        // Commit the pending composition only when the input context is
+        // still focused, i.e. the input method is being switched. On focus
+        // out (app switch, or the editor restarting after a send) the
+        // composition must be dropped instead, otherwise the committed
+        // text lands in the freshly cleared field.
+        if (event.inputContext()->hasFocus()) {
+            state->commitComposition(event.inputContext());
+        }
         state->clearSession(event.inputContext());
     }
 
@@ -252,7 +259,6 @@ public:
                         break;
                     }
                 }
-                FCITX_MOZC_WARN() << "mozc data resolved: " << dataPath;
             }
             std::string profileDir =
                 StandardPath::global().userDirectory(StandardPath::Type::Data);
@@ -267,9 +273,6 @@ public:
             if (handler_ == nullptr) {
                 handlerFailed_ = true;
                 FCITX_MOZC_WARN() << "mozc_engine_create failed";
-            } else {
-                FCITX_MOZC_DEBUG()
-                    << "mozc handler created, data=" << dataPath;
             }
         }
         return handler_;
@@ -291,21 +294,6 @@ json MozcState::eval(const json &command) {
     }
     std::string in = command.dump();
     char *out = g_evalJsonFn(h, in.c_str());
-    if (out != nullptr) {
-        std::string outStr(out);
-        auto cursorPos = outStr.find("\"cursor\":");
-        std::string cursorVal = "?";
-        if (cursorPos != std::string::npos) {
-            cursorVal = outStr.substr(cursorPos + 9, 6);
-        }
-        FCITX_MOZC_WARN()
-            << "mozc eval: len=" << outStr.size()
-            << " candwin=" << (outStr.find("candidate_window") !=
-                               std::string::npos)
-            << " result=" << (outStr.find("\"result\"") !=
-                              std::string::npos)
-            << " cursor=" << cursorVal;
-    }
     if (out == nullptr) {
         return json();
     }
@@ -518,7 +506,7 @@ void MozcState::commitComposition(InputContext *ic) {
     json cmd;
     cmd["input"]["type"] = "SEND_COMMAND";
     cmd["input"]["id"] = sessionId_;
-    cmd["input"]["command"]["type"] = "COMMIT";
+    cmd["input"]["command"]["type"] = "SUBMIT";
     json reply = eval(cmd);
     if (reply.contains("output")) {
         applyOutput(ic, reply["output"]);
